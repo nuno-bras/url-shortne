@@ -1,0 +1,27 @@
+include:
+  - docker-compose-db.yml
+
+services:
+  api:
+    build:
+      context: .
+    container_name: url-shortner-api
+    environment:
+      DB_USERNAME: ${DB_USERNAME:-quarkus}
+      DB_PASSWORD: ${DB_PASSWORD:-quarkus}
+      DB_HOST: ${DB_HOST:-url-shortner-database}
+      DB_DATABASE: ${DB_DATABASE:-admin}
+      DB_PORT: ${DB_PORT:-27017}
+    ports:
+      - 80:8080
+    healthcheck:
+      test: curl localhost:8080/health
+      retries: 3
+      timeout: 5s
+      interval: 60s
+    networks:
+      - backend
+      - frontend
+
+networks:
+  frontend:

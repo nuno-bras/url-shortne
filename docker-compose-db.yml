@@ -1,0 +1,19 @@
+services:
+  database:
+    image: mongo:6.0.8
+    container_name: ${DB_HOST:-url-shortner-database}
+    ports:
+      - ${DB_PORT:-27017}:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DB_USERNAME:-quarkus}
+      MONGO_INITDB_ROOT_PASSWORD: ${DB_PASSWORD:-quarkus}
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/local --quiet
+      retries: 3
+      timeout: 5s
+      interval: 60s
+    networks:
+      - backend
+
+networks:
+  backend:
