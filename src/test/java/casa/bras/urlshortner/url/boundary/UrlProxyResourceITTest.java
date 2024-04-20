@@ -8,35 +8,13 @@ import casa.bras.urlshortner.common.errors.ApplicationError;
 import casa.bras.urlshortner.common.errors.ErrorDTO;
 import casa.bras.urlshortner.url.dto.CreateUrlDTO;
 import casa.bras.urlshortner.url.dto.UrlProxyDTO;
-import casa.bras.urlshortner.url.entity.UrlRepository;
-import casa.bras.urlshortner.users.entity.UserEntity;
-import casa.bras.urlshortner.users.entity.UserRepository;
-import casa.bras.utilities.IntegrationTest;
-import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
-import jakarta.inject.Inject;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 @QuarkusTest
-@TestHTTPEndpoint(UrlProxyResource.class)
-class UrlProxyResourceITTest extends IntegrationTest {
-  @Inject UrlRepository urlRepository;
-  @Inject UserRepository userRepository;
-
-  private UserEntity user;
-
-  @BeforeEach
-  void beforeEach() {
-
-    userRepository.deleteAll();
-    urlRepository.deleteAll();
-
-    user = new UserEntity("test@test.test", "name");
-    userRepository.persist(user);
-  }
+class UrlProxyResourceITTest extends ProxyIntegrationTest {
 
   @Test
   void validRequestAndAuth_create_createsNewProxy() {
@@ -57,7 +35,7 @@ class UrlProxyResourceITTest extends IntegrationTest {
             .body(request)
             .header(UrlProxyResource.API_KEY_HEADER, user.getApiKey())
             .when()
-            .post()
+            .post("/urls")
             .then()
             .statusCode(BAD_REQUEST.getStatusCode())
             .extract()
@@ -78,7 +56,7 @@ class UrlProxyResourceITTest extends IntegrationTest {
             .body(request)
             .header(UrlProxyResource.API_KEY_HEADER, UUID.randomUUID())
             .when()
-            .post()
+            .post("/urls")
             .then()
             .statusCode(UNAUTHORIZED.getStatusCode())
             .extract()
@@ -96,7 +74,7 @@ class UrlProxyResourceITTest extends IntegrationTest {
         given()
             .header(UrlProxyResource.API_KEY_HEADER, user.getApiKey())
             .when()
-            .get()
+            .get("/urls")
             .then()
             .statusCode(OK.getStatusCode())
             .extract()
@@ -114,7 +92,7 @@ class UrlProxyResourceITTest extends IntegrationTest {
         given()
             .header(UrlProxyResource.API_KEY_HEADER, UUID.randomUUID())
             .when()
-            .get()
+            .get("/urls")
             .then()
             .statusCode(UNAUTHORIZED.getStatusCode())
             .extract()
@@ -131,7 +109,8 @@ class UrlProxyResourceITTest extends IntegrationTest {
     given()
         .header(UrlProxyResource.API_KEY_HEADER, user.getApiKey())
         .when()
-        .delete(proxy.hash())
+        .pathParam("hash", proxy.hash())
+        .delete("/urls/{hash}")
         .then()
         .statusCode(NO_CONTENT.getStatusCode());
 
@@ -146,7 +125,8 @@ class UrlProxyResourceITTest extends IntegrationTest {
     given()
         .header(UrlProxyResource.API_KEY_HEADER, user.getApiKey())
         .when()
-        .delete("16161")
+        .pathParam("hash", "16161")
+        .delete("/urls/{hash}")
         .then()
         .statusCode(NO_CONTENT.getStatusCode());
 
@@ -162,7 +142,8 @@ class UrlProxyResourceITTest extends IntegrationTest {
         given()
             .header(UrlProxyResource.API_KEY_HEADER, UUID.randomUUID())
             .when()
-            .delete(proxy.hash())
+            .pathParam("hash", proxy.hash())
+            .delete("/urls/{hash}")
             .then()
             .statusCode(UNAUTHORIZED.getStatusCode())
             .extract()
@@ -170,27 +151,5 @@ class UrlProxyResourceITTest extends IntegrationTest {
 
     assertNotNull(response);
     assertEquals(ApplicationError.UNKNOWN_API_KEY, response.errorType());
-  }
-
-  private UrlProxyDTO createAndAssertProxy(CreateUrlDTO request) {
-    var response =
-        given()
-            .contentType(ContentType.JSON)
-            .body(request)
-            .header(UrlProxyResource.API_KEY_HEADER, user.getApiKey())
-            .when()
-            .post()
-            .then()
-            .statusCode(CREATED.getStatusCode())
-            .extract()
-            .as(UrlProxyDTO.class);
-
-    assertNotNull(response);
-    assertEquals(request.url(), response.url());
-    assertNotNull(response.hash());
-
-    assertNotNull(urlRepository.findByHash(response.hash()));
-
-    return response;
   }
 }

@@ -12,7 +12,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
-@Path("{hash}")
+@Path("/")
 @Tag(name = "Redirect")
 public class ProxyResource {
   private final RedirectUseCase redirectUseCase;
@@ -22,6 +22,7 @@ public class ProxyResource {
   }
 
   @GET
+  @Path("/{hash:\\w{7}}")
   @Operation(summary = "Redirection")
   @APIResponse(
       responseCode = "301",
