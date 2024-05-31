@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import casa.bras.urlshortner.common.errors.ApplicationError;
 import casa.bras.urlshortner.common.errors.ErrorDTO;
-import casa.bras.urlshortner.url.dto.CreateUrlDTO;
 import casa.bras.urlshortner.url.dto.UrlProxyDTO;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.http.ContentType;
@@ -19,21 +18,19 @@ class UrlProxyResourceITTest extends ProxyIntegrationTest {
   @Test
   void validRequestAndAuth_create_createsNewProxy() {
 
-    var request = new CreateUrlDTO("http://localhost");
+    String url = "http://localhost";
 
-    createAndAssertProxy(request);
+    createAndAssertProxy(url);
   }
 
   @Test
   void invalidRequest_create_returnsBadRequest() {
 
-    var request = new CreateUrlDTO("localhost");
-
+    String url = "localhost";
     var response =
         given()
-            .contentType(ContentType.JSON)
-            .body(request)
-            .header(UrlProxyResource.API_KEY_HEADER, user.getApiKey())
+            .formParam("url", url, ContentType.TEXT)
+            .formParam(UrlProxyResource.API_KEY_HEADER, user.getApiKey(), ContentType.TEXT)
             .when()
             .post("/urls")
             .then()
@@ -42,19 +39,18 @@ class UrlProxyResourceITTest extends ProxyIntegrationTest {
             .as(ErrorDTO.class);
 
     assertNotNull(response);
-    assertEquals(ApplicationError.URL_FORMAT_INVALID, response.errorType());
+    assertEquals(ApplicationError.VALIDATION_ERROR, response.errorType());
   }
 
   @Test
   void invalidAuth_create_returnsUnauthorized() {
 
-    var request = new CreateUrlDTO("http://localhost");
+    String url = "http://localhost";
 
     var response =
         given()
-            .contentType(ContentType.JSON)
-            .body(request)
-            .header(UrlProxyResource.API_KEY_HEADER, UUID.randomUUID())
+            .formParam("url", url, ContentType.TEXT)
+            .formParam(UrlProxyResource.API_KEY_HEADER, UUID.randomUUID(), ContentType.TEXT)
             .when()
             .post("/urls")
             .then()
@@ -68,7 +64,8 @@ class UrlProxyResourceITTest extends ProxyIntegrationTest {
 
   @Test
   void validAuth_list_returnsOk() {
-    UrlProxyDTO proxy = createAndAssertProxy(new CreateUrlDTO("http://localhost"));
+    String url = "http://localhost";
+    UrlProxyDTO proxy = createAndAssertProxy(url);
 
     var response =
         given()
@@ -90,7 +87,7 @@ class UrlProxyResourceITTest extends ProxyIntegrationTest {
 
     var response =
         given()
-            .header(UrlProxyResource.API_KEY_HEADER, UUID.randomUUID())
+            .header(UrlProxyResource.API_KEY_HEADER, UUID.randomUUID(), ContentType.TEXT)
             .when()
             .get("/urls")
             .then()
@@ -104,10 +101,11 @@ class UrlProxyResourceITTest extends ProxyIntegrationTest {
 
   @Test
   void validAuth_delete_returnsNoContentAndDeletesProxy() {
-    UrlProxyDTO proxy = createAndAssertProxy(new CreateUrlDTO("http://localhost"));
+    String url = "http://localhost";
+    UrlProxyDTO proxy = createAndAssertProxy(url);
 
     given()
-        .header(UrlProxyResource.API_KEY_HEADER, user.getApiKey())
+        .formParam(UrlProxyResource.API_KEY_HEADER, user.getApiKey(), ContentType.TEXT)
         .when()
         .pathParam("hash", proxy.hash())
         .delete("/urls/{hash}")
@@ -119,11 +117,11 @@ class UrlProxyResourceITTest extends ProxyIntegrationTest {
 
   @Test
   void invalidHash_delete_returnsNoContentAndDoesntDeletesProxy() {
-
-    UrlProxyDTO proxy = createAndAssertProxy(new CreateUrlDTO("http://localhost"));
+    String url = "http://localhost";
+    UrlProxyDTO proxy = createAndAssertProxy(url);
 
     given()
-        .header(UrlProxyResource.API_KEY_HEADER, user.getApiKey())
+        .formParam(UrlProxyResource.API_KEY_HEADER, user.getApiKey(), ContentType.TEXT)
         .when()
         .pathParam("hash", "16161")
         .delete("/urls/{hash}")
@@ -136,11 +134,12 @@ class UrlProxyResourceITTest extends ProxyIntegrationTest {
   @Test
   void invalidAuth_delete_returnsUnauthorized() {
 
-    UrlProxyDTO proxy = createAndAssertProxy(new CreateUrlDTO("http://localhost"));
+    String url = "http://localhost";
+    UrlProxyDTO proxy = createAndAssertProxy(url);
 
     var response =
         given()
-            .header(UrlProxyResource.API_KEY_HEADER, UUID.randomUUID())
+            .formParam(UrlProxyResource.API_KEY_HEADER, UUID.randomUUID(), ContentType.TEXT)
             .when()
             .pathParam("hash", proxy.hash())
             .delete("/urls/{hash}")

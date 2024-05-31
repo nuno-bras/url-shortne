@@ -10,7 +10,9 @@ public enum ApplicationError {
   UNKNOWN_API_KEY(Response.Status.UNAUTHORIZED, "Unknown API KEY"),
   USER_NOT_FOUND(Response.Status.NOT_FOUND, "User not found"),
   URL_FORMAT_INVALID(Response.Status.BAD_REQUEST, "URL format invalid"),
-  VALIDATION_ERROR(Response.Status.BAD_REQUEST, "Malformed Object");
+  VALIDATION_ERROR(Response.Status.BAD_REQUEST, "Malformed Object"),
+  UNAUTHORIZED(Response.Status.UNAUTHORIZED, "Unauthorized"),
+  ;
 
   private final Response.Status status;
   private final String message;

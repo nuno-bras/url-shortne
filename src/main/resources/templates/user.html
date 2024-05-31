@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Proxy URL Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #77d0ff 3px solid;
+        }
+        header a {
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+        header ul {
+            padding: 0;
+            list-style: none;
+        }
+        header li {
+            float: left;
+            display: inline;
+            padding: 0 20px 0 20px;
+        }
+        header nav {
+            float: right;
+            margin-top: 10px;
+        }
+        header .highlight, header .current a {
+            color: #77d0ff;
+            font-weight: bold;
+        }
+        header a:hover {
+            color: #77d0ff;
+            font-weight: bold;
+        }
+        #content {
+            padding: 20px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        form label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+        }
+        form input[type="url"], form input[type="password"], form button {
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        form button {
+            background: #333;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        form button:hover {
+            background: #555;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        ul li {
+            padding: 10px;
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            margin-bottom: 5px;
+            border-radius: 5px;
+        }
+        ul li form {
+            display: inline;
+        }
+        ul li button {
+            background: #e74c3c;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-left: 10px;
+        }
+        ul li button:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="container">
+        <div id="branding">
+            <h1>Proxy URL Manager</h1>
+        </div>
+    </div>
+</header>
+<div class="container" id="content">
+    <div>
+        <h2>Welcome, {user.name}</h2>
+        <p>Email: {user.email}</p>
+
+        <h3>Add URL</h3>
+        <form action="/urls" method="post">
+            <input type="url" name="url" placeholder="Enter new URL" required>
+            <input type="hidden" name="x-api-key" value="{user.apiKey}">
+            <button type="submit">Add URL</button>
+        </form>
+
+        <h3>Proxy URLs</h3>
+        <ul>
+            {#for url in urls}
+            <li>
+                <a href="localhost:8080/{url.hash}">{url.hash}</a>
+                {url.url}
+                <form action="/urls/{url.hash}" method="post" style="display:inline;">
+                    <input type="hidden" name="_method" value="delete">
+                    <input type="hidden" name="x-api-key" value="{user.apiKey}">
+                    <button type="submit">Delete</button>
+                </form>
+            </li>
+            {/for}
+        </ul>
+    </div>
+
+</div>
+</body>
+</html>
