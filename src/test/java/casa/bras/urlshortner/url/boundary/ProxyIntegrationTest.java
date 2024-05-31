@@ -5,7 +5,6 @@ import static jakarta.ws.rs.core.Response.Status.CREATED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import casa.bras.urlshortner.url.dto.CreateUrlDTO;
 import casa.bras.urlshortner.url.dto.UrlProxyDTO;
 import casa.bras.urlshortner.url.entity.UrlRepository;
 import casa.bras.urlshortner.users.entity.UserEntity;
@@ -32,12 +31,11 @@ public class ProxyIntegrationTest extends IntegrationTest {
     userRepository.persist(user);
   }
 
-  protected UrlProxyDTO createAndAssertProxy(CreateUrlDTO request) {
+  protected UrlProxyDTO createAndAssertProxy(String url) {
     var response =
         given()
-            .contentType(ContentType.JSON)
-            .body(request)
-            .header(UrlProxyResource.API_KEY_HEADER, user.getApiKey())
+            .formParam("url", url, ContentType.TEXT)
+            .formParam(UrlProxyResource.API_KEY_HEADER, user.getApiKey(), ContentType.TEXT)
             .when()
             .post("/urls")
             .then()
@@ -46,7 +44,7 @@ public class ProxyIntegrationTest extends IntegrationTest {
             .as(UrlProxyDTO.class);
 
     assertNotNull(response);
-    assertEquals(request.url(), response.url());
+    assertEquals(url, response.url());
     assertNotNull(response.hash());
 
     assertNotNull(urlRepository.findByHash(response.hash()));

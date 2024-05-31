@@ -2,7 +2,6 @@ package casa.bras.urlshortner.url.control;
 
 import casa.bras.urlshortner.common.errors.ApplicationError;
 import casa.bras.urlshortner.common.errors.ApplicationException;
-import casa.bras.urlshortner.url.dto.CreateUrlDTO;
 import casa.bras.urlshortner.url.dto.UrlProxyDTO;
 import casa.bras.urlshortner.url.entity.UrlEntity;
 import casa.bras.urlshortner.url.entity.UrlRepository;
@@ -23,13 +22,13 @@ public class CreateProxyUseCase {
     this.urlRepository = urlRepository;
   }
 
-  public UrlProxyDTO execute(CreateUrlDTO request, UUID apiKey) {
+  public UrlProxyDTO execute(String url, UUID apiKey) {
     try {
       UserEntity user =
           userRepository
               .findByApiKey(apiKey)
               .orElseThrow(() -> new ApplicationException(ApplicationError.UNKNOWN_API_KEY));
-      UrlEntity urlEntity = new UrlEntity(new URL(request.url()), user);
+      UrlEntity urlEntity = new UrlEntity(new URL(url), user);
       urlRepository.persist(urlEntity);
       return new UrlProxyDTO(urlEntity);
     } catch (MalformedURLException e) {

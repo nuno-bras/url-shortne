@@ -2,7 +2,6 @@ package casa.bras.urlshortner.url.boundary;
 
 import static io.restassured.RestAssured.given;
 
-import casa.bras.urlshortner.url.dto.CreateUrlDTO;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.config.RedirectConfig;
 import io.restassured.config.RestAssuredConfig;
@@ -17,9 +16,9 @@ class ProxyResourceITTest extends ProxyIntegrationTest {
 
   @Test
   void configuredProxy_hash_returnsRedirectToProxyUrl() {
-    var request = new CreateUrlDTO("http://localhost");
+    String url = "http://localhost";
 
-    String hash = createAndAssertProxy(request).hash();
+    String hash = createAndAssertProxy(url).hash();
 
     given()
         .config(REST_ASSURED_CONFIG)
@@ -27,7 +26,7 @@ class ProxyResourceITTest extends ProxyIntegrationTest {
         .get(hash)
         .then()
         .statusCode(301)
-        .header(HttpHeaders.LOCATION, request.url())
+        .header(HttpHeaders.LOCATION, url)
         .noRootPath();
   }
 

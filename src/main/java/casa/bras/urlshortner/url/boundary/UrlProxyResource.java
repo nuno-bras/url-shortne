@@ -3,15 +3,9 @@ package casa.bras.urlshortner.url.boundary;
 import casa.bras.urlshortner.url.control.CreateProxyUseCase;
 import casa.bras.urlshortner.url.control.DeleteProxyUseCase;
 import casa.bras.urlshortner.url.control.ListProxyUseCase;
-import casa.bras.urlshortner.url.dto.CreateUrlDTO;
 import casa.bras.urlshortner.url.dto.UrlProxyDTO;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.HeaderParam;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Response;
 import java.net.URI;
 import java.util.List;
@@ -21,6 +15,7 @@ import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
+import org.hibernate.validator.constraints.URL;
 
 @Path("/urls")
 @Tag(name = "URLs")
@@ -50,9 +45,9 @@ public class UrlProxyResource {
       description = "API KEY invalid",
       content = @Content(schema = @Schema(implementation = UrlProxyDTO.class)))
   public Response create(
-      @NotNull CreateUrlDTO request, @HeaderParam(API_KEY_HEADER) @NotNull UUID header) {
+      @FormParam("url") @URL String url, @FormParam(API_KEY_HEADER) @NotNull UUID header) {
 
-    UrlProxyDTO proxy = createProxyUseCase.execute(request, header);
+    UrlProxyDTO proxy = createProxyUseCase.execute(url, header);
     return Response.created(URI.create(proxy.hash())).entity(proxy).build();
   }
 
@@ -79,7 +74,7 @@ public class UrlProxyResource {
       description = "API KEY invalid",
       content = @Content(schema = @Schema(implementation = UrlProxyDTO.class)))
   public void delete(
-      @PathParam("hash") String hash, @HeaderParam(API_KEY_HEADER) @NotNull UUID header) {
+      @PathParam("hash") String hash, @FormParam(API_KEY_HEADER) @NotNull UUID header) {
     deleteProxyUseCase.execute(hash, header);
   }
 }

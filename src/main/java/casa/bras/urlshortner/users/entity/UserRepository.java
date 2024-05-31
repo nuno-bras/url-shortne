@@ -16,6 +16,10 @@ public class UserRepository implements PanacheMongoRepository<UserEntity> {
     return find("apiKey", apiKey).firstResultOptional();
   }
 
+  public Optional<UserEntity> findByEmail(String email) {
+    return find("email", email).firstResultOptional();
+  }
+
   public UserEntity save(UserEntity user) {
     persist(user);
     return user;

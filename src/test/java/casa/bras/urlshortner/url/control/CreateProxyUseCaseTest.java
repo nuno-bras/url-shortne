@@ -6,7 +6,6 @@ import static org.mockito.Mockito.*;
 
 import casa.bras.urlshortner.common.errors.ApplicationError;
 import casa.bras.urlshortner.common.errors.ApplicationException;
-import casa.bras.urlshortner.url.dto.CreateUrlDTO;
 import casa.bras.urlshortner.url.dto.UrlProxyDTO;
 import casa.bras.urlshortner.url.entity.UrlEntity;
 import casa.bras.urlshortner.url.entity.UrlRepository;
@@ -34,28 +33,27 @@ class CreateProxyUseCaseTest {
     var uuid = UUID.randomUUID();
     when(userRepository.findByApiKey(any())).thenReturn(Optional.of(user));
 
-    var request = new CreateUrlDTO("http://localhost");
-    UrlProxyDTO result = useCase.execute(request, uuid);
+    String url = "http://localhost";
+    UrlProxyDTO result = useCase.execute(url, uuid);
 
-    assertEquals(request.url(), result.url());
-    assertEquals(UrlHashUtils.hash(new URL(request.url())), result.hash());
+    assertEquals(UrlHashUtils.hash(new URL(url)), result.hash());
 
     verify(userRepository).findByApiKey(uuid);
     var argumentCaptor = ArgumentCaptor.forClass(UrlEntity.class);
     verify(urlRepository).persist(argumentCaptor.capture());
     List<UrlEntity> urlEntities = argumentCaptor.getAllValues();
     assertEquals(1, urlEntities.size());
-    assertEquals(request.url(), urlEntities.get(0).getUrl());
+    assertEquals(url, urlEntities.get(0).getUrl());
     assertEquals(result.hash(), urlEntities.get(0).getHash());
   }
 
   @Test
   void invalidUUID_execute_throwsUserNotFoundException() {
     when(userRepository.findByApiKey(any())).thenReturn(Optional.empty());
-    var request = new CreateUrlDTO("http://localhost");
+    String url = "http://localhost";
 
     var exception =
-        assertThrows(ApplicationException.class, () -> useCase.execute(request, UUID.randomUUID()));
+        assertThrows(ApplicationException.class, () -> useCase.execute(url, UUID.randomUUID()));
     assertEquals(ApplicationError.UNKNOWN_API_KEY, exception.getError());
 
     verify(userRepository).findByApiKey(any());
@@ -65,10 +63,10 @@ class CreateProxyUseCaseTest {
   @Test
   void invalidUrl_execute_throwsUrlFormatInvalidException() {
     when(userRepository.findByApiKey(any())).thenReturn(Optional.of(new UserEntity()));
-    var request = new CreateUrlDTO("localhost");
+    String url = "localhost";
 
     var exception =
-        assertThrows(ApplicationException.class, () -> useCase.execute(request, UUID.randomUUID()));
+        assertThrows(ApplicationException.class, () -> useCase.execute(url, UUID.randomUUID()));
     assertEquals(ApplicationError.URL_FORMAT_INVALID, exception.getError());
 
     verify(userRepository).findByApiKey(any());

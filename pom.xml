@@ -13,8 +13,7 @@
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
 		<quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
-		<quarkus.platform.version>3.9.2</quarkus.platform.version>
-		<skipITs>true</skipITs>
+		<quarkus.platform.version>3.9.4</quarkus.platform.version>
 		<surefire-plugin.version>3.2.5</surefire-plugin.version>
 		<!-- TESTS -->
 		<embed-mongo.version>4.9.2</embed-mongo.version>
@@ -25,6 +24,7 @@
 		<jboss-logmanager.version>3.0.2.Final</jboss-logmanager.version>
 		<spotless.version>2.40.0</spotless.version>
 		<mockito.version>5.5.0</mockito.version>
+		<mongodb.version>1.19.7</mongodb.version>
 	</properties>
 	
 	<dependencyManagement>
@@ -70,13 +70,13 @@
 			<artifactId>commons-lang3</artifactId>
 		</dependency>
 
-		<!-- LOGGING -->
+		<!-- Frontend -->
 		<dependency>
-			<groupId>org.jboss.logmanager</groupId>
-			<artifactId>jboss-logmanager</artifactId>
-			<version>${jboss-logmanager.version}</version>
-			<scope>test</scope>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-rest-qute</artifactId>
 		</dependency>
+
+		<!-- AUTHENTICATION -->
 
 		<!-- TESTS -->
 		<dependency>
@@ -92,13 +92,19 @@
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>mongodb</artifactId>
-			<version>1.19.7</version>
+			<version>${mongodb.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
 			<version>${mockito.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.logmanager</groupId>
+			<artifactId>jboss-logmanager</artifactId>
+			<version>${jboss-logmanager.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
